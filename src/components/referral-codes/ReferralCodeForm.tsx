@@ -100,7 +100,23 @@ const ReferralCodeForm: React.FC = () => {
           
           // Format screenshots as one URL per line
           if (data.screenshots && Array.isArray(data.screenshots)) {
-            const screenshotUrls = data.screenshots.map(s => s.url || s).join('\n');
+            // Handle both formats: array of objects with url property or array of strings
+            const screenshotUrls = data.screenshots.map(s => {
+              if (typeof s === 'string') {
+                try {
+                  // Try to parse if it's a JSON string
+                  const parsed = JSON.parse(s);
+                  return parsed.url || s;
+                } catch {
+                  // If parsing fails, it's already a string URL
+                  return s;
+                }
+              } else if (s && typeof s === 'object' && 'url' in s) {
+                return s.url;
+              }
+              return '';
+            }).filter(Boolean).join('\n');
+            
             setValue('screenshots', screenshotUrls);
           } else {
             setValue('screenshots', '');
@@ -124,18 +140,19 @@ const ReferralCodeForm: React.FC = () => {
     setLoading(true);
     
     try {
-      // Parse screenshots from line-by-line format to array of objects
+      // Parse screenshots from line-by-line format to array of strings
       let screenshotsData = null;
       if (data.screenshots) {
         const lines = data.screenshots.split('\n').filter(line => line.trim() !== '');
         if (lines.length > 0) {
+          // Store as simple array of strings instead of objects with url property
           screenshotsData = lines.map(url => {
             const trimmedUrl = url.trim();
             // Validate URL format
             if (!trimmedUrl.match(/^https?:\/\/.+/i)) {
               throw new Error(`Invalid URL format: ${trimmedUrl}`);
             }
-            return { url: trimmedUrl };
+            return trimmedUrl; // Store as simple string, not as object
           });
         }
       }

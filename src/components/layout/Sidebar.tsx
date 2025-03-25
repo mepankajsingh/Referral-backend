@@ -1,85 +1,70 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Tag, Grid, Settings } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { 
+  LayoutDashboard, 
+  Tag, 
+  FolderTree, 
+  Settings,
+  ChevronRight
+} from 'lucide-react';
 
-const Sidebar: React.FC = () => {
+interface SidebarProps {
+  isSidebarOpen: boolean;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen }) => {
   const { isAdmin } = useAuth();
 
+  const navLinkClass = ({ isActive }: { isActive: boolean }) => 
+    `flex items-center p-2 text-base font-medium rounded-lg ${
+      isActive 
+        ? 'bg-gray-100 dark:bg-gray-700 text-blue-600 dark:text-blue-500' 
+        : 'text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700'
+    }`;
+
   return (
-    <div className="bg-white border-r border-gray-200 w-64 h-full overflow-y-auto">
-      <div className="p-6">
-        <h2 className="text-xl font-bold text-gray-800">Referral Admin</h2>
-      </div>
-      <nav className="px-4 pb-6">
-        <ul className="space-y-1">
-          {isAdmin && (
-            <li>
-              <NavLink
-                to="/"
-                className={({ isActive }) =>
-                  `flex items-center px-4 py-3 text-sm font-medium rounded-md ${
-                    isActive
-                      ? 'bg-blue-50 text-blue-700'
-                      : 'text-gray-700 hover:bg-gray-100'
-                  }`
-                }
-              >
-                <LayoutDashboard className="mr-3 h-5 w-5" />
-                Dashboard
-              </NavLink>
-            </li>
-          )}
+    <aside 
+      className={`fixed top-0 left-0 z-20 w-64 h-full pt-16 transition-transform bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 ${
+        isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+      } lg:translate-x-0`}
+      aria-label="Sidebar"
+    >
+      <div className="h-full px-3 pb-4 overflow-y-auto">
+        <ul className="space-y-2 mt-5">
           <li>
-            <NavLink
-              to="/referral-codes"
-              className={({ isActive }) =>
-                `flex items-center px-4 py-3 text-sm font-medium rounded-md ${
-                  isActive
-                    ? 'bg-blue-50 text-blue-700'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`
-              }
-            >
-              <Tag className="mr-3 h-5 w-5" />
-              Referral Codes
+            <NavLink to="/" className={navLinkClass}>
+              <LayoutDashboard size={20} className="mr-3" />
+              <span>Dashboard</span>
             </NavLink>
           </li>
+          
+          {isAdmin && (
+            <>
+              <li>
+                <NavLink to="/referral-codes" className={navLinkClass}>
+                  <Tag size={20} className="mr-3" />
+                  <span>Referral Codes</span>
+                </NavLink>
+              </li>
+              <li>
+                <NavLink to="/categories" className={navLinkClass}>
+                  <FolderTree size={20} className="mr-3" />
+                  <span>Categories</span>
+                </NavLink>
+              </li>
+            </>
+          )}
+          
           <li>
-            <NavLink
-              to="/categories"
-              className={({ isActive }) =>
-                `flex items-center px-4 py-3 text-sm font-medium rounded-md ${
-                  isActive
-                    ? 'bg-blue-50 text-blue-700'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`
-              }
-            >
-              <Grid className="mr-3 h-5 w-5" />
-              Categories
+            <NavLink to="/settings" className={navLinkClass}>
+              <Settings size={20} className="mr-3" />
+              <span>Settings</span>
             </NavLink>
           </li>
-          {isAdmin && (
-            <li>
-              <NavLink
-                to="/settings"
-                className={({ isActive }) =>
-                  `flex items-center px-4 py-3 text-sm font-medium rounded-md ${
-                    isActive
-                      ? 'bg-blue-50 text-blue-700'
-                      : 'text-gray-700 hover:bg-gray-100'
-                  }`
-                }
-              >
-                <Settings className="mr-3 h-5 w-5" />
-                Settings
-              </NavLink>
-            </li>
-          )}
         </ul>
-      </nav>
-    </div>
+      </div>
+    </aside>
   );
 };
 
